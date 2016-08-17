@@ -15,25 +15,43 @@ PKG_MAINTAINER:=Alexander Couzens <lynxis@fe80.eu>
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/openwifi-boot-notifier
+define Package/openwifi-boot-notifier/Default
   SECTION:=utils
   CATEGORY:=OpenWifi
-  TITLE:=Boot Notifier
-  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +mdns +shadow-useradd +uhttpd
 endef
 
-define Package/openwifi-boot-notifier/description
+define Package/openwifi-boot-notifier/Default/description
+ Notify openwifi when booted
+endef
+
+define Package/openwifi-boot-notifier-base
+  $(call Package/openwifi-boot-notifier/Default)
+  TITLE:=Boot Notifier Base Package
+  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +mdns +shadow-useradd +uhttpd +rpcd-mod-iwinfo +rpcd-mod-file +libubox +libubus
+endef
+
+define Package/openwifi-boot-notifier-base/description
+ Notify openwifi when booted
+endef
+
+define Package/openwifi-boot-notifier-luci2
+  $(call Package/openwifi-boot-notifier/Default)
+  TITLE:=Boot Notifier with LuCI v2 Remote Management
+  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +mdns +shadow-useradd +uhttpd +luci2
+endef
+
+define Package/openwifi-boot-notifier-luci2/description
  Notify openwifi when booted
 endef
 
 define Build/Compile
 endef
 
-define Package/openwifi-boot-notifier/conffiles
+define Package/openwifi-boot-notifier-base/conffiles
 /etc/config/openwifi
 endef
 
-define Package/openwifi-boot-notifier/install
+define Package/openwifi-boot-notifier-base/install
 	$(INSTALL_DIR) $(1)/lib/openwifi/
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_DIR) $(1)/etc/config/
@@ -42,4 +60,29 @@ define Package/openwifi-boot-notifier/install
 	$(INSTALL_DATA) ./files/openwifi.config $(1)/etc/config/openwifi
 endef
 
-$(eval $(call BuildPackage,openwifi-boot-notifier))
+define Package/openwifi-boot-notifier-base/postinst
+#!/bin/sh
+cat > $${IPKG_INSTROOT}/usr/share/rpcd/acl.d/superuser.json << EOF
+{
+        "superuser": {
+                "description": "Super user access role",
+                "read": {
+                        "ubus": {
+                                "*": [ "*" ]
+                        },
+                        "uci": [ "*" ]
+                },
+                "write": {
+                        "ubus": {
+                                "*": [ "*" ]
+                        },
+                        "uci": [ "*" ]
+                }
+        }
+}
+EOF
+exit 0
+endef
+
+$(eval $(call BuildPackage,openwifi-boot-notifier-base))
+$(eval $(call BuildPackage,openwifi-boot-notifier-luci2))
