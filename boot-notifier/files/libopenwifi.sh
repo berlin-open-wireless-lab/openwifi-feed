@@ -28,7 +28,7 @@ device_register() {
 
   . /etc/openwrt_release
 
-  localaddress=$(ip r g "${address}" | head -n1 | awk '{ print $5 }')
+  localaddress=$(ip r g "${address}" | head -n1 | sed "s/.*src\s*//g")
   user=root
   password="$(dd if=/dev/urandom bs=512 count=1 2>/dev/null | md5sum - | cut -c1-16)"
 
