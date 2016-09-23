@@ -144,10 +144,18 @@ device_discover() {
 device_generate_uuid() {
   local uuid=""
 
-  uuid=$(cat /proc/sys/kernel/random/uuid)
-  if [ -z "$uuid" ] ; then
-    return 1
-  fi
+  # Random UUID
+  #uuid=$(cat /proc/sys/kernel/random/uuid)
+  #if [ -z "$uuid" ] ; then
+  #  return 1
+  #fi
+
+
+  #ID Based on CPU and eth0
+
+  local CPU_MD5=$(egrep "vendor|family|model|flags" /proc/cpuinfo | md5sum | sed "s/\s*-\s*//g")
+  local ETH0_MAC_WITHOUT_COLONS=$(sed "s/://g" /sys/class/net/eth0/address)
+  uuid=${CPU_MD5:0:8}-${CPU_MD5:8:4}-${CPU_MD5:12:4}-${CPU_MD5:16:4}-$ETH0_MAC_WITHOUT_COLONS
 
   uci set openwifi.@device[0].uuid="$uuid"
   uci commit openwifi
