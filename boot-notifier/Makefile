@@ -8,10 +8,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openwifi-boot-notifier
-PKG_VERSION:=2015-05-04
+PKG_VERSION:=2016-10-04
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
-PKG_MAINTAINER:=Alexander Couzens <lynxis@fe80.eu>
+PKG_MAINTAINER:=Johannes Wegener <mail@johanneswegener.de>
 
 include $(INCLUDE_DIR)/package.mk
 

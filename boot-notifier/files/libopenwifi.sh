@@ -114,8 +114,9 @@ device_discover_server() {
 
 # search for a openwifi controller and set it if found
 device_discover() {
+  local register=$1
   if device_discover_server "openwifi" "80" ; then
-    set_controller "openwifi" "80"
+    set_controller "openwifi" "80" "" "$register"
     return 0
   fi
 
@@ -132,7 +133,7 @@ device_discover() {
 	    path=$(jsonfilter -s "$entry" -e '$["txt"]'|sed s/path=//)
 	    port=$(jsonfilter -s "$entry" -e '$["port"]')
 	    if device_discover_server "$ip" "$port" "$path" ; then
-		    set_controller "$ip" "$port" "$path"
+		    set_controller "$ip" "$port" "$path" "$register"
 		    return 0
 	    fi
     done
@@ -168,9 +169,12 @@ set_controller() {
   local port=$2
   local path=$3
   local uuid=$(uci get openwifi.@device[0].uuid)
+  local register=$4
 
-  if ! device_register "$server" "$port" "$path" "$uuid" ; then
-    return 1
+  if [ "$register" != "doNotRegister" ]  ; then
+          if ! device_register "$server" "$port" "$path" "$uuid" ; then
+            return 1
+          fi
   fi
 
   uci delete openwifi.@server[]
