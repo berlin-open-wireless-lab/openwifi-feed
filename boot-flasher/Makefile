@@ -33,9 +33,9 @@ endef
 define Build/Compile
 endef
 
-define Package/openwifi-boot-notifier-base/install
+define Package/openwifi-boot-flasher/install
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_BIN) ./files/openwifi-boot-flasher.init  $(1)/etc/init.d/openwifi-boot-flasher
 endef
 
-$(eval $(call BuildPackage,openwifi-boot-notifier))
+$(eval $(call BuildPackage,openwifi-boot-flasher))
