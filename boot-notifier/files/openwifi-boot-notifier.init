@@ -38,7 +38,7 @@ service_triggers()
 }
 
 start_service() {
-  if ! grep -q 'flash_lede' /proc/cmdline; then
+  if ! grep -q 'flash_firmware' /proc/cmdline; then
           . /lib/openwifi/openwifi.sh
           openwifi
           reload_service
