@@ -1,0 +1,62 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2016 Johannes Wegener
+
+do_kexec() {
+        mount /dev/sda1 /mnt
+        commandLine=$(sed -n "s/.*linux.*boot\/vmlinuz root=/root=/p" /mnt/boot/grub/grub.cfg)
+        commandLine="$commandLine cs5535-mfgpt.mfgptfix=2" # see https://github.com/torvalds/linux/blob/master/drivers/misc/cs5535-mfgpt.c#L27
+        kexec -l /mnt/boot/vmlinuz --command-line="$commandLine"
+        kexec -e
+}
+
+flash_firmware() {
+        . /lib/openwifi/openwifi.sh
+        device_discover "doNotRegister"
+        local address=$(uci get openwifi.@server[0].address)
+        local port=$(uci get openwifi.@server[0].port)
+        local path=$(uci get openwifi.@server[0].path)
+        local uuid=$(uci get openwifi.@device[0].uuid)
+
+        RESPONSE=$(wget -q -O-\
+              --header='Content-Type: application/json' \
+              --post-data="\
+                {\"params\": \
+                  { \"uuid\":\"${uuid}\" \
+                    }, \
+                \"method\": \"get_default_image_url\", \
+                \"id\" : \"23\", \
+                \"jsonrpc\": \"2.0\" }" \
+                "http://${address}:${port}${path}/api")
+        
+        local image_url=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_image\"]")
+        local image_md5=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_md5\"]")
+
+        if [[ -z "$image_url" ]] || [[ -z "$image_md5" ]] ; then
+                echo "failed to receive image url or md5 url"
+                do_kexec
+                return
+        fi
+
+        DIR=$(mktemp -d)
+        cd $DIR
+
+        echo "Downloading Image"
+        wget "$image_url"
+        wget "$image_md5"
+        filename=$(echo $image | sed "s/.*\///g")
+
+        if md5sum -c md5sums ; then
+            echo "Flashing /dev/sda" 
+            cat $filename | gunzip | dd of=/dev/sda bs=4M
+        else
+            echo "Checksum failed! Nothing changed!" 
+        fi
+
+        do_kexec
+}
+
+start() {
+        if grep -q 'flash_firmware' /proc/cmdline ; then
+                flash_firmware
+        fi                                             
+}
