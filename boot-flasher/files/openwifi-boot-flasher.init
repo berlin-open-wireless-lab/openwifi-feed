@@ -1,6 +1,8 @@
 #!/bin/sh /etc/rc.common
 # Copyright (C) 2016 Johannes Wegener
 
+START=99
+
 do_kexec() {
         mount /dev/sda1 /mnt
         commandLine=$(sed -n "s/.*linux.*boot\/vmlinuz root=/root=/p" /mnt/boot/grub/grub.cfg)
