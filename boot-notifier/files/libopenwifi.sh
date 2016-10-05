@@ -32,6 +32,7 @@ device_register() {
   user=root
   password="$(dd if=/dev/urandom bs=512 count=1 2>/dev/null | md5sum - | cut -c1-16)"
 
+  rm /etc/*lock #Remove lock files - TODO findout why is is necessary!
   useradd generatepw
   echo -e "$password\n$password\n" | passwd generatepw
 
