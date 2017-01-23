@@ -37,7 +37,7 @@ endef
 define Package/openwifi-boot-notifier-luci2
   $(call Package/openwifi-boot-notifier/Default)
   TITLE:=Boot Notifier with LuCI v2 Remote Management
-  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +mdns +shadow-useradd +uhttpd +luci2
+  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +mdns +uhttpd +luci2 +@!shadow-useradd:BUSYBOX_CONFIG_FEATURE_SHADOWPASSWDS
 endef
 
 define Package/openwifi-boot-notifier-luci2/description
