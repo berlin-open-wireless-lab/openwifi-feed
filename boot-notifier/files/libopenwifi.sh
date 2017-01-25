@@ -72,8 +72,9 @@ device_is_registered() {
         {\"params\": \
           { \
             \"uuid\":\"${uuid}\", \
-          } \
-        \"method\": \"device_is_registered\", \
+            \"name\":\"\" \
+          }, \
+        \"method\": \"device_check_registered\", \
         \"jsonrpc\": \"2.0\" }" \
       "http://${server}:${port}${path}/api")
 
@@ -123,20 +124,33 @@ device_discover() {
 
   # check if mdns is available
   if ubus list mdns ; then
-    local mdns controller entries ip path port
+    local mdns entries ip path port
     ubus call mdns scan
     mdns=$(ubus call mdns browse)
 
     entries=$(jsonfilter -s "$mdns" -e '$["_openwifi._tcp"][*]')
     entries=$(echo $entries|sed s/\ //g|sed s/\}/}\ /g)
     for entry in $entries ; do
-	    ip=$(jsonfilter -s "$entry" -e '$["ipv4"]')
-	    path=$(jsonfilter -s "$entry" -e '$["txt"]'|sed s/path=//)
-	    port=$(jsonfilter -s "$entry" -e '$["port"]')
-	    if device_discover_server "$ip" "$port" "$path" ; then
-		    set_controller "$ip" "$port" "$path" "$register"
-		    return 0
-	    fi
+        ip=$(jsonfilter -s "$entry" -e '$["ipv4"]')
+        path=$(jsonfilter -s "$entry" -e '$["txt"]'|sed s/path=//)
+        port=$(jsonfilter -s "$entry" -e '$["port"]')
+        if device_discover_server "$ip" "$port" "$path" ; then
+            set_controller "$ip" "$port" "$path" "$register"
+            return 0
+        fi
+    done
+  else # use avahi as fallback
+    local entries ip path port txt
+    entries=$(avahi-browse -rcp _openwifi._tcp|grep =|grep IPv4)
+    for entry in $entries ; do
+        ip=$(echo "$entry" | awk -F";" '{print$8}')
+        port=$(echo "$entry" | awk -F";" '{print $9}')
+        txt=$(echo "$entry" | awk -F";" '{print $10}')
+        path=$(echo "$txt" | sed s/path=//g | sed s/\"//g)
+        if device_discover_server "$ip" "$port" "$path" ; then
+            set_controller "$ip" "$port" "$path" "$register"
+            return 0
+        fi
     done
   fi
 

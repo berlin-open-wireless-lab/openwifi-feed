@@ -58,6 +58,18 @@ $(call Package/openwifi-boot-notifier/Default/description)
  Notify openwifi when booted
 endef
 
+define Package/openwifi-boot-notifier-luci2-avahi
+  $(call Package/openwifi-boot-notifier/Default)
+  TITLE:=Boot Notifier with LuCI v2 Remote Management using avahi
+  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +avahi-utils +uhttpd +luci2
+endef
+
+define Package/openwifi-boot-notifier-luci2-avahi/description
+$(call Package/openwifi-boot-notifier/Default/description)
+
+ Notify openwifi when booted
+endef
+
 define Build/Compile
 endef
 
