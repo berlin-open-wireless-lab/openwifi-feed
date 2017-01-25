@@ -97,6 +97,12 @@ endef
 define Package/openwifi-boot-notifier-luci2/install
 endef
 
+define Package/openwifi-boot-notifier-mdns/install
+endef
+
+define Package/openwifi-boot-notifier-luci2-avahi/install
+endef
+
 define Package/openwifi-boot-notifier-base/postinst
 #!/bin/sh
 cat > $${IPKG_INSTROOT}/usr/share/rpcd/acl.d/superuser.json << EOF
@@ -123,3 +129,5 @@ endef
 
 $(eval $(call BuildPackage,openwifi-boot-notifier-base))
 $(eval $(call BuildPackage,openwifi-boot-notifier-luci2))
+$(eval $(call BuildPackage,openwifi-boot-notifier-mdns))
+$(eval $(call BuildPackage,openwifi-boot-notifier-luci2-avahi))
