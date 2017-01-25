@@ -29,7 +29,7 @@ endef
 define Package/openwifi-boot-notifier-base
   $(call Package/openwifi-boot-notifier/Default)
   TITLE:=Boot Notifier Base Package
-  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +mdns +uhttpd
+  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +uhttpd
 endef
 
 define Package/openwifi-boot-notifier-base/conffiles
@@ -46,10 +46,22 @@ define Package/openwifi-boot-notifier-base/config
 	select BUSYBOX_CONFIG_FEATURE_SHADOWPASSWDS if !shadow-useradd
 endef
 
+define Package/openwifi-boot-notifier-mdns
+  $(call Package/openwifi-boot-notifier/Default)
+  TITLE:=Boot Notifier using mdns
+  DEPENDS:=+openwifi-boot-notifier-base +mdns
+endef
+
+define Package/openwifi-boot-notifier-mdns/description
+$(call Package/openwifi-boot-notifier/Default/description)
+
+ Notify openwifi when booted
+endef
+
 define Package/openwifi-boot-notifier-luci2
   $(call Package/openwifi-boot-notifier/Default)
   TITLE:=Boot Notifier with LuCI v2 Remote Management
-  DEPENDS:=+openwifi-boot-notifier-base +luci2
+  DEPENDS:=+openwifi-boot-notifier-base +mdns +luci2
 endef
 
 define Package/openwifi-boot-notifier-luci2/description
@@ -61,7 +73,7 @@ endef
 define Package/openwifi-boot-notifier-luci2-avahi
   $(call Package/openwifi-boot-notifier/Default)
   TITLE:=Boot Notifier with LuCI v2 Remote Management using avahi
-  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +avahi-utils +uhttpd +luci2
+  DEPENDS:=+openwifi-boot-notifier-base +avahi-utils +luci2
 endef
 
 define Package/openwifi-boot-notifier-luci2-avahi/description
