@@ -122,13 +122,13 @@ device_discover() {
     return 0
   fi
 
-  # check if mdns is available
-  if ubus list mdns ; then
-    local mdns entries ip path port
-    ubus call mdns scan
-    mdns=$(ubus call mdns browse)
+  # check if umdns is available
+  if ubus list umdns ; then
+    local umdns entries ip path port
+    ubus call umdns scan
+    umdns=$(ubus call umdns browse)
 
-    entries=$(jsonfilter -s "$mdns" -e '$["_openwifi._tcp"][*]')
+    entries=$(jsonfilter -s "$umdns" -e '$["_openwifi._tcp"][*]')
     entries=$(echo $entries|sed s/\ //g|sed s/\}/}\ /g)
     for entry in $entries ; do
         ip=$(jsonfilter -s "$entry" -e '$["ipv4"]')
