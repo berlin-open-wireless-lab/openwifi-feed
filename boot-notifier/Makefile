@@ -46,13 +46,13 @@ define Package/openwifi-boot-notifier-base/config
 	select BUSYBOX_CONFIG_FEATURE_SHADOWPASSWDS if !shadow-useradd
 endef
 
-define Package/openwifi-boot-notifier-mdns
+define Package/openwifi-boot-notifier-umdns
   $(call Package/openwifi-boot-notifier/Default)
   TITLE:=Boot Notifier using mdns
-  DEPENDS:=+openwifi-boot-notifier-base +mdns
+  DEPENDS:=+openwifi-boot-notifier-base +umdns
 endef
 
-define Package/openwifi-boot-notifier-mdns/description
+define Package/openwifi-boot-notifier-umdns/description
 $(call Package/openwifi-boot-notifier/Default/description)
 
  Notify openwifi when booted
@@ -61,7 +61,7 @@ endef
 define Package/openwifi-boot-notifier-luci2
   $(call Package/openwifi-boot-notifier/Default)
   TITLE:=Boot Notifier with LuCI v2 Remote Management
-  DEPENDS:=+openwifi-boot-notifier-base +mdns +luci2
+  DEPENDS:=+openwifi-boot-notifier-base +umdns +luci2
 endef
 
 define Package/openwifi-boot-notifier-luci2/description
