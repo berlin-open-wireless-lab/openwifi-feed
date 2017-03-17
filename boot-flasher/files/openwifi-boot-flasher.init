@@ -31,10 +31,10 @@ flash_firmware() {
                 "http://${address}:${port}${path}/api")
         
         local image_url=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_image\"]")
-        local image_md5=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_md5\"]")
+        local image_checksum=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_checksum\"]")
 
-        if [[ -z "$image_url" ]] || [[ -z "$image_md5" ]] ; then
-                echo "failed to receive image url or md5 url"
+        if [[ -z "$image_url" ]] || [[ -z "$image_checksum" ]] ; then
+                echo "failed to receive image url or checksum url"
                 do_kexec
                 return
         fi
@@ -44,10 +44,11 @@ flash_firmware() {
 
         echo "Downloading Image"
         wget "$image_url"
-        wget "$image_md5"
+        wget "$image_checksum"
         filename=$(echo "$image_url" | sed "s/.*\///g")
+        filename_checksum=$(echo "$image_checksum" | sed "s/.*\///g")
 
-        if md5sum -c md5sums ; then
+        if sha256sum -c $filename_checksum ; then
             echo "Flashing /dev/sda" 
             cat $filename | gunzip | dd of=/dev/sda bs=4M
         else
