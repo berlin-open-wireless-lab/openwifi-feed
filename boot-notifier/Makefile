@@ -48,7 +48,7 @@ endef
 
 define Package/openwifi-boot-notifier-umdns
   $(call Package/openwifi-boot-notifier/Default)
-  TITLE:=Boot Notifier using mdns
+  TITLE:=Boot Notifier using umdns
   DEPENDS:=+openwifi-boot-notifier-base +umdns
 endef
 
@@ -97,7 +97,7 @@ endef
 define Package/openwifi-boot-notifier-luci2/install
 endef
 
-define Package/openwifi-boot-notifier-mdns/install
+define Package/openwifi-boot-notifier-umdns/install
 endef
 
 define Package/openwifi-boot-notifier-luci2-avahi/install
@@ -129,5 +129,5 @@ endef
 
 $(eval $(call BuildPackage,openwifi-boot-notifier-base))
 $(eval $(call BuildPackage,openwifi-boot-notifier-luci2))
-$(eval $(call BuildPackage,openwifi-boot-notifier-mdns))
+$(eval $(call BuildPackage,openwifi-boot-notifier-umdns))
 $(eval $(call BuildPackage,openwifi-boot-notifier-luci2-avahi))
