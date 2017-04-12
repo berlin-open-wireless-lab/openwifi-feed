@@ -106,6 +106,11 @@ device_discover_server() {
         \"jsonrpc\": \"2.0\" }" \
       "http://${server}:${port}${path}/api")
   json_load "$RESPONSE"
+
+  if [ $? -ne 0 ]; then
+      return 1
+  fi
+
   json_get_var result result
   if [ "$result" = "openwifi" ] ; then
     return 0
@@ -125,7 +130,7 @@ device_discover() {
   # check if umdns is available
   if ubus list umdns ; then
     local umdns entries ip path port
-    ubus call umdns scan
+    ubus call umdns update
     umdns=$(ubus call umdns browse)
 
     entries=$(jsonfilter -s "$umdns" -e '$["_openwifi._tcp"][*]')
