@@ -232,7 +232,7 @@ openwifi() {
         continue
       fi
       server=$(uci get openwifi.@server[0].address)
-      port=$(uci get openwifi.@device[0].port)
+      port=$(uci get openwifi.@server[0].port)
       path=$(uci get openwifi.@server[0].path)
     fi
 
