@@ -17,7 +17,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/openwifi-boot-flasher/Default
   SECTION:=utils
-  CATEGORY:=OpenWifi
+  CATEGORY:=OpenWiFi
 endef
 
 define Package/openwifi-boot-flasher/Default/description

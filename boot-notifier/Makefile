@@ -19,16 +19,16 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/openwifi-boot-notifier/Default
   SECTION:=utils
-  CATEGORY:=OpenWifi
+  CATEGORY:=OpenWiFi
 endef
 
 define Package/openwifi-boot-notifier/Default/description
- Notify openwifi when booted
+ Notify OpenWiFi when booted
 endef
 
 define Package/openwifi-boot-notifier-base
   $(call Package/openwifi-boot-notifier/Default)
-  TITLE:=Boot Notifier Base Package
+  TITLE:=OpenWiFi boot notifier base package
   DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +uhttpd
 endef
 
@@ -55,31 +55,31 @@ endef
 define Package/openwifi-boot-notifier-umdns/description
 $(call Package/openwifi-boot-notifier/Default/description)
 
- Notify openwifi when booted
+ Notify OpenWiFi when booted
 endef
 
-define Package/openwifi-boot-notifier-luci2
+define Package/openwifi-boot-notifier-mdns-luci2
   $(call Package/openwifi-boot-notifier/Default)
   TITLE:=Boot Notifier with LuCI v2 Remote Management
   DEPENDS:=+openwifi-boot-notifier-base +umdns +luci2
 endef
 
-define Package/openwifi-boot-notifier-luci2/description
+define Package/openwifi-boot-notifier-mdns-luci2/description
 $(call Package/openwifi-boot-notifier/Default/description)
 
- Notify openwifi when booted
+ Notify OpenWiFi when booted
 endef
 
-define Package/openwifi-boot-notifier-luci2-avahi
+define Package/openwifi-boot-notifier-avahi-luci2
   $(call Package/openwifi-boot-notifier/Default)
   TITLE:=Boot Notifier with LuCI v2 Remote Management using avahi
   DEPENDS:=+openwifi-boot-notifier-base +avahi-utils +luci2
 endef
 
-define Package/openwifi-boot-notifier-luci2-avahi/description
+define Package/openwifi-boot-notifier-avahi-luci2/description
 $(call Package/openwifi-boot-notifier/Default/description)
 
- Notify openwifi when booted
+ Notify OpenWiFi when booted
 endef
 
 define Build/Compile
@@ -94,13 +94,13 @@ define Package/openwifi-boot-notifier-base/install
 	$(INSTALL_DATA) ./files/openwifi.config $(1)/etc/config/openwifi
 endef
 
-define Package/openwifi-boot-notifier-luci2/install
+define Package/openwifi-boot-notifier-mdns/install
 endef
 
 define Package/openwifi-boot-notifier-umdns/install
 endef
 
-define Package/openwifi-boot-notifier-luci2-avahi/install
+define Package/openwifi-boot-notifier-avahi-luci2/install
 endef
 
 define Package/openwifi-boot-notifier-base/postinst
@@ -131,3 +131,4 @@ $(eval $(call BuildPackage,openwifi-boot-notifier-base))
 $(eval $(call BuildPackage,openwifi-boot-notifier-luci2))
 $(eval $(call BuildPackage,openwifi-boot-notifier-umdns))
 $(eval $(call BuildPackage,openwifi-boot-notifier-luci2-avahi))
+
