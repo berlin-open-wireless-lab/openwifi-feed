@@ -58,13 +58,13 @@ $(call Package/openwifi-boot-notifier/Default/description)
  Notify OpenWiFi when booted
 endef
 
-define Package/openwifi-boot-notifier-mdns-luci2
+define Package/openwifi-boot-notifier-umdns-luci2
   $(call Package/openwifi-boot-notifier/Default)
   TITLE:=Boot Notifier with LuCI v2 Remote Management
   DEPENDS:=+openwifi-boot-notifier-base +umdns +luci2
 endef
 
-define Package/openwifi-boot-notifier-mdns-luci2/description
+define Package/openwifi-boot-notifier-umdns-luci2/description
 $(call Package/openwifi-boot-notifier/Default/description)
 
  Notify OpenWiFi when booted
@@ -128,7 +128,7 @@ exit 0
 endef
 
 $(eval $(call BuildPackage,openwifi-boot-notifier-base))
-$(eval $(call BuildPackage,openwifi-boot-notifier-luci2))
 $(eval $(call BuildPackage,openwifi-boot-notifier-umdns))
+$(eval $(call BuildPackage,openwifi-boot-notifier-umdns-luci2))
 $(eval $(call BuildPackage,openwifi-boot-notifier-luci2-avahi))
 
