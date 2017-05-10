@@ -130,5 +130,5 @@ endef
 $(eval $(call BuildPackage,openwifi-boot-notifier-base))
 $(eval $(call BuildPackage,openwifi-boot-notifier-umdns))
 $(eval $(call BuildPackage,openwifi-boot-notifier-umdns-luci2))
-$(eval $(call BuildPackage,openwifi-boot-notifier-luci2-avahi))
+$(eval $(call BuildPackage,openwifi-boot-notifier-avahi-luci2))
 
