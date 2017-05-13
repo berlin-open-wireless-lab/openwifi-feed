@@ -17,8 +17,16 @@ device_register() {
   local port=$2
   local path=$3
   local uuid=$4
+  local useSSL=$5
   local hostname=$(uci get system.@system[0].hostname)
   local address
+  local protocol
+
+  if [ "$useSSL" = "useSSL" ]; then
+      protocol="https"
+  else
+      protocol="http"
+  fi
 
   address=$(nslookup "$server" 2>/dev/null | tail -n1 | awk '{print $3}')
   if [ -z "$address" ] ; then
@@ -40,7 +48,7 @@ device_register() {
   uci commit rpcd
   _log info "Registering to server $server"
 
-  wget -q -O/dev/null \
+  wget --no-check-certificate -q -O/dev/null \
       --header='Content-Type: application/json' \
       --post-data="\
         {\"params\": \
@@ -55,7 +63,7 @@ device_register() {
             }, \
         \"method\": \"device_register\", \
         \"jsonrpc\": \"2.0\" }" \
-        "http://${address}:${port}${path}/api"
+        "${protocol}://${address}:${port}${path}/api"
   return $?
 }
 
@@ -65,8 +73,15 @@ device_is_registered() {
   local port="$2"
   local path="$3"
   local uuid="$4"
+  local useSSL="$5"
 
-  RESPONSE=$(wget -q -O- \
+  if [ "$useSSL" = "useSSL" ]; then
+      protocol="https"
+  else
+      protocol="http"
+  fi
+
+  RESPONSE=$(wget --no-check-certificate -q -O- \
       --header='Content-Type: application/json' \
       --post-data="\
         {\"params\": \
@@ -76,7 +91,7 @@ device_is_registered() {
           }, \
         \"method\": \"device_check_registered\", \
         \"jsonrpc\": \"2.0\" }" \
-      "http://${server}:${port}${path}/api")
+      "${protocol}://${server}:${port}${path}/api")
 
   json_load "$RESPONSE"
   json_get_var result result
@@ -93,9 +108,18 @@ device_discover_server() {
   local server="$1"
   local port="$2"
   local path="$3"
+  local useSSL="$4"
   local result
+  local protocol
 
-  RESPONSE=$(wget -q -O- \
+  if [ "$useSSL" = "useSSL" ]; then
+     protocol="https"
+  else
+     protocol="http"
+  fi
+
+
+  RESPONSE=$(wget --no-check-certificate -q -O- \
       --header='Content-Type: application/json' \
       --post-data="\
         {\"params\": \
@@ -104,7 +128,7 @@ device_discover_server() {
         \"id\": \"23\", \
         \"method\": \"hello\", \
         \"jsonrpc\": \"2.0\" }" \
-      "http://${server}:${port}${path}/api")
+      "${protocol}://${server}:${port}${path}/api")
   json_load "$RESPONSE"
 
   if [ $? -ne 0 ]; then
@@ -129,7 +153,7 @@ device_discover() {
 
   # check if umdns is available
   if ubus list umdns ; then
-    local umdns entries ip path port
+    local umdns entries ip
     ubus call umdns update
     umdns=$(ubus call umdns browse)
 
@@ -137,10 +161,11 @@ device_discover() {
     entries=$(echo $entries|sed s/\ //g|sed s/\}/}\ /g)
     for entry in $entries ; do
         ip=$(jsonfilter -s "$entry" -e '$["ipv4"]')
-        path=$(jsonfilter -s "$entry" -e '$["txt"]'|sed s/path=//)
+        path=$(jsonfilter -s "$entry" -e '$["txt"]'|sed 's/path=\([^;]*\).*/\1/')
+        useSSL=$(jsonfilter -s "$entry" -e '$["txt"]'|grep -o useSSL)
         port=$(jsonfilter -s "$entry" -e '$["port"]')
-        if device_discover_server "$ip" "$port" "$path" ; then
-            set_controller "$ip" "$port" "$path" "$register"
+        if device_discover_server "$ip" "$port" "$path" "$useSSL"; then
+            set_controller "$ip" "$port" "$path" "$register" "$useSSL"
             return 0
         fi
     done
@@ -151,9 +176,10 @@ device_discover() {
         ip=$(echo "$entry" | awk -F";" '{print$8}')
         port=$(echo "$entry" | awk -F";" '{print $9}')
         txt=$(echo "$entry" | awk -F";" '{print $10}')
-        path=$(echo "$txt" | sed s/path=//g | sed s/\"//g)
-        if device_discover_server "$ip" "$port" "$path" ; then
-            set_controller "$ip" "$port" "$path" "$register"
+        path=$(echo "$txt" | sed 's/path=\([^;]*\).*/\1/' | sed s/\"//g)
+        useSSL=$(echo "$txt"|grep -o useSSL)
+        if device_discover_server "$ip" "$port" "$path" "$useSSL" ; then
+            set_controller "$ip" "$port" "$path" "$register" "$useSSL"
             return 0
         fi
     done
@@ -190,9 +216,10 @@ set_controller() {
   local path=$3
   local uuid=$(uci get openwifi.@device[0].uuid)
   local register=$4
+  local useSSL=$5
 
   if [ "$register" != "doNotRegister" ]  ; then
-          if ! device_register "$server" "$port" "$path" "$uuid" ; then
+          if ! device_register "$server" "$port" "$path" "$uuid" "$useSSL" ; then
             return 1
           fi
   fi
@@ -202,18 +229,20 @@ set_controller() {
   uci set openwifi.@server[0].address="$server"
   uci set openwifi.@server[0].port="$port"
   uci set openwifi.@server[0].path="$path"
+  uci set openwifi.@server[0].useSSL="$useSSL"
   uci commit openwifi
   return 0
 }
 
 openwifi() {
-  local server port path
+  local server port path useSSL
   local uuid
   local i=0
 
   while [ $i -lt 3 ] ; do
     server=$(uci get openwifi.@server[0].address)
     port=$(uci get openwifi.@server[0].port)
+    useSSL=$(uci get openwifi.@server[0].useSSL)
     path=$(uci get openwifi.@server[0].path)
     uuid=$(uci get openwifi.@device[0].uuid)
 
@@ -234,18 +263,19 @@ openwifi() {
       server=$(uci get openwifi.@server[0].address)
       port=$(uci get openwifi.@server[0].port)
       path=$(uci get openwifi.@server[0].path)
+      useSSL=$(uci get openwifi.@server[0].useSSL)
     fi
 
     # check if server is reachable
-    if ! device_discover_server "$server" "$port" "$path" ; then
+    if ! device_discover_server "$server" "$port" "$path" "$useSSL"; then
       _log error "Server $server does not respond! Clear old server"
       uci delete openwifi.@server[]
       uci commit openwifi
       continue
     fi
 
-    if ! device_is_registered "$server" "$port" "$path" "$uuid" ; then
-      device_register "$server" "$port" "$path" "$uuid" && return 0
+    if ! device_is_registered "$server" "$port" "$path" "$uuid" "$useSSL"; then
+      device_register "$server" "$port" "$path" "$uuid" "$useSSL" && return 0
     else
       return 0
     fi
