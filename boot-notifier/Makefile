@@ -18,8 +18,9 @@ PKG_MAINTAINER:=Johannes Wegener <mail@johanneswegener.de>
 include $(INCLUDE_DIR)/package.mk
 
 define Package/openwifi-boot-notifier/Default
-  SECTION:=utils
-  CATEGORY:=OpenWiFi
+  CATEGORY:=Administration
+  SECTION:=admin
+  SUBMENU:=OpenWiFi
 endef
 
 define Package/openwifi-boot-notifier/Default/description
