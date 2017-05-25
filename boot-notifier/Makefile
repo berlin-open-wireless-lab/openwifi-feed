@@ -49,7 +49,7 @@ endef
 
 define Package/openwifi-boot-notifier-umdns
   $(call Package/openwifi-boot-notifier/Default)
-  TITLE:=Boot Notifier using umdns
+  TITLE:=Boot Notifier using umDNS
   DEPENDS:=+openwifi-boot-notifier-base +umdns
 endef
 
@@ -95,10 +95,10 @@ define Package/openwifi-boot-notifier-base/install
 	$(INSTALL_DATA) ./files/openwifi.config $(1)/etc/config/openwifi
 endef
 
-define Package/openwifi-boot-notifier-mdns/install
+define Package/openwifi-boot-notifier-umdns/install
 endef
 
-define Package/openwifi-boot-notifier-umdns/install
+define Package/openwifi-boot-notifier-umdns-luci2/install
 endef
 
 define Package/openwifi-boot-notifier-avahi-luci2/install
