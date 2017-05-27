@@ -38,9 +38,19 @@ service_triggers()
 }
 
 start_service() {
-  if ! grep -q 'flash_firmware' /proc/cmdline; then
-          . /lib/openwifi/openwifi.sh
-          openwifi
-          reload_service
+  if grep -q 'flash_firmware' /proc/cmdline; then
+    exit 0
   fi
+  procd_open_instance
+  procd_set_param command /sbin/openwific.sh -b -t 180
+
+  # respawn automatically if something died, be careful if you have an alternative process supervisor
+  # if process dies sooner than respawn_threshold, it is considered crashed and after 5 retries the service is stopped
+  procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-5}
+
+  procd_set_param file /etc/config/openwifi # /etc/init.d/your_service reload will restart the daemon if these files have changed
+  procd_set_param netdev dev # likewise, except if dev's ifindex changes.
+  procd_set_param stdout 1 # forward stdout of the command to logd
+  procd_set_param stderr 1 # same for stderr
+  procd_close_instance
 }
