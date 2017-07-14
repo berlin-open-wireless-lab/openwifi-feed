@@ -13,6 +13,8 @@ HOSTNAME=$(uci get system.@system[0].hostname)
 USER="root"
 PASSWORD=$(dd if=/dev/urandom bs=512 count=1 2>/dev/null | md5sum - | cut -c1-16)
 PASSWD_COMMAND="passwd"
+# this contains the information for the server how the node should be contacted
+COMMUNICATION_PROTOCOL=$(if netstat -tulpn|grep 0.0.0.0:443|grep -q uhttpd;then echo JSONUBUS_HTTPS; else echo JSONUBUS_HTTP; fi)
 SLEEP=180 # TODO Fix this
 . /etc/openwrt_release
 
@@ -90,6 +92,7 @@ _post() {
                 \"proto\": \"${PROTOCOL}\", \
                 \"login\": \"${USER}\", \
                 \"password\": \"${PASSWORD}\" \
+                \"communication_protcol\": \"${COMMUNICATION_PROTOCOL}\" \
                 }, \
             \"method\": \"device_register\", \
             \"jsonrpc\": \"2.0\" }" \
