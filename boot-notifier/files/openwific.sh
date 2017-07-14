@@ -15,6 +15,8 @@ PASSWORD=$(dd if=/dev/urandom bs=512 count=1 2>/dev/null | md5sum - | cut -c1-16
 PASSWD_COMMAND="passwd"
 # this contains the information for the server how the node should be contacted
 COMMUNICATION_PROTOCOL=$(if netstat -tulpn|grep 0.0.0.0:443|grep -q uhttpd;then echo JSONUBUS_HTTPS; else echo JSONUBUS_HTTP; fi)
+CLIENT_CERTS=""
+
 SLEEP=180 # TODO Fix this
 . /etc/openwrt_release
 
@@ -42,6 +44,10 @@ _preinit() {
           return 4
       fi
   fi
+
+  if [ -f /etc/openwifi/client.key ] && [ -f /etc/openwifi/client.crt ]; then
+      CLIENT_CERTS="--private-key=/etc/openwifi/client.key --certificate=/etc/openwifi/client.crt"
+  fi
 }
 
 _preinit
@@ -68,6 +74,7 @@ _post() {
     hello)
       response=$(wget --no-check-certificate -q -O- \
           --header='Content-Type: application/json' \
+          ${CLIENT_CERTS} \
           --post-data="\
             {\"params\": \
               { \
@@ -81,6 +88,7 @@ _post() {
     ;;
     device_register)
       wget --no-check-certificate -q -O/dev/null \
+          ${CLIENT_CERTS} \
           --header='Content-Type: application/json' \
           --post-data="\
             {\"params\": \
@@ -101,6 +109,7 @@ _post() {
     ;;
     device_check_registered)
       response="$(wget --no-check-certificate -q -O- \
+          ${CLIENT_CERTS} \
           --header='Content-Type: application/json' \
           --post-data="\
             {\"params\": \
