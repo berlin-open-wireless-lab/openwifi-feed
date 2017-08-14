@@ -90,6 +90,7 @@ define Package/openwifi-boot-notifier-base/install
 	$(INSTALL_DIR) $(1)/lib/openwifi/
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_DIR) $(1)/etc/config/
+	$(INSTALL_DIR) $(1)/sbin/
 	$(INSTALL_BIN) ./files/openwifi-boot-notifier.init  $(1)/etc/init.d/openwifi-boot-notifier
 	$(INSTALL_BIN) ./files/openwific.sh $(1)/sbin/openwific.sh
 	$(INSTALL_BIN) ./files/libopenwifi.sh $(1)/lib/openwifi/openwifi.sh
