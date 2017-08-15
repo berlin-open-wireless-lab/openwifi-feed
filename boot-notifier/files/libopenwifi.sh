@@ -97,7 +97,7 @@ _post() {
                 \"version\": \"${DISTRIB_RELEASE}\", \
                 \"proto\": \"${PROTOCOL}\", \
                 \"login\": \"${USER}\", \
-                \"password\": \"${PASSWORD}\" \
+                \"password\": \"${PASSWORD}\", \
                 \"communication_protcol\": \"${COMMUNICATION_PROTOCOL}\" \
                 }, \
             \"method\": \"device_register\", \
