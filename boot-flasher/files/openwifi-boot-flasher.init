@@ -13,31 +13,36 @@ do_kexec() {
 
 flash_firmware() {
         . /lib/openwifi/openwifi.sh
-        device_discover "doNotRegister"
-        local address=$(uci get openwifi.@server[0].address)
-        local port=$(uci get openwifi.@server[0].port)
-        local path=$(uci get openwifi.@server[0].path)
-        local uuid=$(uci get openwifi.@device[0].uuid)
+        while true; 
+        do
+            device_discover "doNotRegister"
+            local address=$(uci get openwifi.@server[0].address)
+            local port=$(uci get openwifi.@server[0].port)
+            local path=$(uci get openwifi.@server[0].path)
+            local uuid=$(uci get openwifi.@device[0].uuid)
 
-        RESPONSE=$(wget -q -O-\
-              --header='Content-Type: application/json' \
-              --post-data="\
-                {\"params\": \
-                  { \"uuid\":\"${uuid}\" \
-                    }, \
-                \"method\": \"get_default_image_url\", \
-                \"id\" : \"23\", \
-                \"jsonrpc\": \"2.0\" }" \
-                "http://${address}:${port}${path}/api")
+            RESPONSE=$(wget -q -O-\
+                  --header='Content-Type: application/json' \
+                  --post-data="\
+                    {\"params\": \
+                      { \"uuid\":\"${uuid}\" \
+                        }, \
+                    \"method\": \"get_default_image_url\", \
+                    \"id\" : \"23\", \
+                    \"jsonrpc\": \"2.0\" }" \
+                    "http://${address}:${port}${path}/api")
         
-        local image_url=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_image\"]")
-        local image_checksum=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_checksum\"]")
+            local image_url=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_image\"]")
+            local image_checksum=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_checksum\"]")
 
-        if [[ -z "$image_url" ]] || [[ -z "$image_checksum" ]] ; then
-                echo "failed to receive image url or checksum url"
-                do_kexec
-                return
-        fi
+                if [[ -z "$image_url" ]] || [[ -z "$image_checksum" ]] ; then
+                    echo "failed to receive image url or checksum url"
+                else
+                    break
+                fi
+
+            sleep 10
+        done
 
         DIR=$(mktemp -d)
         cd $DIR
