@@ -98,7 +98,7 @@ _post() {
                 \"proto\": \"${PROTOCOL}\", \
                 \"login\": \"${USER}\", \
                 \"password\": \"${PASSWORD}\", \
-                \"communication_protcol\": \"${COMMUNICATION_PROTOCOL}\" \
+                \"communication_protocol\": \"${COMMUNICATION_PROTOCOL}\" \
                 }, \
             \"method\": \"device_register\", \
             \"jsonrpc\": \"2.0\" }" \
