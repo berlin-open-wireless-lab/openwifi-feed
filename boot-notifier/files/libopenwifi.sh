@@ -59,7 +59,7 @@ _post() {
       return 5
     fi
 
-    local localaddress=$(ip r g "${address}" | head -n1 | sed "s/.*src\s*//g")
+    local localaddress=$(ip r g "${address}" | head -n1 | sed -r "s/.*src ([0-9,\.]*).*/\1/g")
 
     if [ -n "$SSL" ]; then
          protocol="https"
