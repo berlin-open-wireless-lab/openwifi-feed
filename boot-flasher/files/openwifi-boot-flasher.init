@@ -15,6 +15,7 @@ flash_firmware() {
         . /lib/openwifi/openwifi.sh
         while true; 
         do
+            device_generate_uuid
             device_discover "doNotRegister"
             local address=$(uci get openwifi.@server[0].address)
             local port=$(uci get openwifi.@server[0].port)
