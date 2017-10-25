@@ -57,6 +57,7 @@ flash_firmware() {
         if sha256sum -c $filename_checksum ; then
             echo "Flashing /dev/sda" 
             cat $filename | gunzip | dd of=/dev/sda bs=4M
+            sync
         else
             echo "Checksum failed! Nothing changed!" 
         fi
