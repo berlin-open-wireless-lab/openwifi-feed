@@ -21,8 +21,15 @@ flash_firmware() {
             local port=$(uci get openwifi.@server[0].port)
             local path=$(uci get openwifi.@server[0].path)
             local uuid=$(uci get openwifi.@device[0].uuid)
+            local SSL=$(uci get openwifi.@server[0].useSSL)
 
-            RESPONSE=$(wget -q -O-\
+            if [ -n "$SSL" ]; then
+                 protocol="https"
+            else
+                 protocol="http"
+            fi
+
+            RESPONSE=$(wget --no-check-certificate -q -O-\
                   --header='Content-Type: application/json' \
                   --post-data="\
                     {\"params\": \
@@ -31,7 +38,7 @@ flash_firmware() {
                     \"method\": \"get_default_image_url\", \
                     \"id\" : \"23\", \
                     \"jsonrpc\": \"2.0\" }" \
-                    "http://${address}:${port}${path}/api")
+                    "${protocol}://${address}:${port}${path}/api")
         
             local image_url=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_image\"]")
             local image_checksum=$(jsonfilter -s "$RESPONSE" -e "$[\"result\"][\"default_checksum\"]")
