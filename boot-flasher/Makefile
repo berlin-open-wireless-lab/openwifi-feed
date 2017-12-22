@@ -28,7 +28,7 @@ endef
 define Package/openwifi-boot-flasher
   $(call Package/openwifi-boot-flasher/Default)
   TITLE:=Boot Flasher Package
-  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +umdns +shadow-useradd +uhttpd +rpcd-mod-iwinfo +rpcd-mod-file +libubox +libubus +openwifi-boot-notifier-base +kexec-tools +@CONFIG_BUSBOX_CONFIG_SHA256SUM
+  DEPENDS:=+ip +rpcd +uhttpd-mod-ubus +shadow-useradd +uhttpd +rpcd-mod-iwinfo +rpcd-mod-file +libubox +libubus +openwifi-boot-notifier-base +kexec-tools +@CONFIG_BUSBOX_CONFIG_SHA256SUM
 endef
 
 define Build/Compile
