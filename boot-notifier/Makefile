@@ -45,6 +45,7 @@ endef
 
 define Package/openwifi-boot-notifier-base/config
 	select BUSYBOX_CONFIG_FEATURE_SHADOWPASSWDS if !shadow-useradd
+	select BUSYBOX_CONFIG_MD5SUM
 endef
 
 define Package/openwifi-boot-notifier-umdns
