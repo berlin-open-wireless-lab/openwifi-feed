@@ -208,7 +208,7 @@ _avahi_discovery() {
         PORT=$(echo "$entry" | awk -F";" '{print $9}')
         txt=$(echo "$entry" | awk -F";" '{print $10}')
         WEB_ROOT=$(echo "$txt" | sed 's/path=\([^;]*\).*/\1/' | sed s/\"//g)
-        SSL=$(echo "$txt"|grep -o useSSL)
+        SSL=$(echo "$entry" | awk -F";" '{print $11}' |grep -o useSSL)
 
         if device_discover_server ; then
             set_controller
